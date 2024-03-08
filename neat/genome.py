@@ -16,7 +16,8 @@ class DefaultGenomeConfig(object):
     """Sets up and holds configuration information for the DefaultGenome class."""
     allowed_connectivity = ['unconnected', 'fs_neat_nohidden', 'fs_neat', 'fs_neat_hidden',
                             'full_nodirect', 'full', 'full_direct',
-                            'partial_nodirect', 'partial', 'partial_direct']
+                            'partial_nodirect', 'partial', 'partial_direct',
+                            'unimodal', 'multimodal']
 
     def __init__(self, params):
         # Create full set of available activation functions.
@@ -229,6 +230,10 @@ class DefaultGenome(object):
                         f"\tif not, set initial_connection = partial_direct {config.connection_fraction}",
                         sep='\n', file=sys.stderr)
                 self.connect_partial_nodirect(config)
+        elif config.initial_connection == 'unimodal':
+            self.connect_unimodal(config)
+        elif config.initial_connection == 'multimodal':
+            self.connect_multimodal(config)
 
     def configure_crossover(self, genome1, genome2, config):
         """ Configure a new genome by crossover from two parent genomes. """
@@ -472,6 +477,34 @@ class DefaultGenome(object):
         connection = config.connection_gene_type((input_id, output_id))
         connection.init_attributes(config)
         return connection
+
+    def connect_unimodal(self, config): 
+        """
+        Randomly connect either ch0 or ch1 sensors connected to outputs,
+            to create unimodal networks.  
+        Note: assumes a very specific input/output node config. 
+        """
+        if random() < 0.5: 
+            connections = [[-1, 0], [-3, 1], [-5, 2], [-7, 3]]
+        else:
+            connections = [[-2, 0], [-4, 1], [-6, 2], [-8, 3]]
+            
+        for c in connections: 
+            connection = self.create_connection(config, c[0], c[1])
+            self.connections[connection.key] = connection
+
+    def connect_multimodal(self, config):
+        """
+        Connect both ch0 and ch1 sensors to outputs,
+            to create multimodal networks.  
+        Note: assumes a very specific input/output node config. 
+        """
+        connections = [[-1, 0], [-3, 1], [-5, 2], [-7, 3],
+                       [-2, 0], [-4, 1], [-6, 2], [-8, 3]]
+        
+        for c in connections: 
+            connection = self.create_connection(config, c[0], c[1])
+            self.connections[connection.key] = connection
 
     def connect_fs_neat_nohidden(self, config):
         """
