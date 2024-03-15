@@ -359,7 +359,10 @@ class DefaultGenome(object):
 
         # Don't allow connections between two output nodes
         if in_node in config.output_keys and out_node in config.output_keys:
-            return
+            if in_node == out_node: # unless the connection is recurrent (ii)
+                pass 
+            else:
+                return
 
         # No need to check for connections between input nodes:
         # they cannot be the output end of a connection (see above).
@@ -499,8 +502,9 @@ class DefaultGenome(object):
             to create multimodal networks.  
         Note: assumes a very specific input/output node config. 
         """
+        # connections = [[-1, 0], [-3, 1],[-2, 0], [-4, 1]]
         connections = [[-1, 0], [-3, 1], [-5, 2], [-7, 3],
-                       [-2, 0], [-4, 1], [-6, 2], [-8, 3]]
+                    [-2, 0], [-4, 1], [-6, 2], [-8, 3]]
         
         for c in connections: 
             connection = self.create_connection(config, c[0], c[1])
