@@ -17,7 +17,7 @@ class DefaultGenomeConfig(object):
     allowed_connectivity = ['unconnected', 'fs_neat_nohidden', 'fs_neat', 'fs_neat_hidden',
                             'full_nodirect', 'full', 'full_direct',
                             'partial_nodirect', 'partial', 'partial_direct',
-                            'unimodal', 'multimodal']
+                            'unimodal', 'multimodal_half', 'multimodal']
 
     def __init__(self, params):
         # Create full set of available activation functions.
@@ -232,6 +232,8 @@ class DefaultGenome(object):
                 self.connect_partial_nodirect(config)
         elif config.initial_connection == 'unimodal':
             self.connect_unimodal(config)
+        elif config.initial_connection == 'multimodal_half':
+            self.connect_multimodal_half(config)
         elif config.initial_connection == 'multimodal':
             self.connect_multimodal(config)
 
@@ -496,13 +498,24 @@ class DefaultGenome(object):
             connection = self.create_connection(config, c[0], c[1])
             self.connections[connection.key] = connection
 
+    def connect_multimodal_half(self, config):
+        """
+        Connect ch0 and ch1 sensors to outputs,
+            to create multimodal networks with left/right inputs/outputs. 
+        Note: assumes a very specific input/output node config. 
+        """
+        connections = [[-1, 0], [-3, 1],[-2, 0], [-4, 1]]
+        
+        for c in connections: 
+            connection = self.create_connection(config, c[0], c[1])
+            self.connections[connection.key] = connection
+
     def connect_multimodal(self, config):
         """
-        Connect both ch0 and ch1 sensors to outputs,
+        Connect ch0 and ch1 sensors to outputs,
             to create multimodal networks.  
         Note: assumes a very specific input/output node config. 
         """
-        # connections = [[-1, 0], [-3, 1],[-2, 0], [-4, 1]]
         connections = [[-1, 0], [-3, 1], [-5, 2], [-7, 3],
                     [-2, 0], [-4, 1], [-6, 2], [-8, 3]]
         
